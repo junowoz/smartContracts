@@ -1,2 +1,2 @@
 # blockchain
-Blockchain, Solidity related stuff
+Blockchain, Web3 Projects!
