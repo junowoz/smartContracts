@@ -76,4 +76,7 @@ contract ZombieFactory {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//Declarações de Funções 
+//Chapter 7: Function Declarations
+function eatHamburgers(string memory _name, uint _amount) public {
+
+}
