@@ -30,3 +30,21 @@ function feedAndMultiply (uint _zombieId, uint _targetDna) public {
 }
 
 //Chapter 8: Zombie DNA
+_targetDna = _targetDna % dnaModulus;
+uint newDna = (myZombie.dna + _targetDna) / 2;
+_createZombie("NoName", newDna);
+
+//Chapter 9: More on Function Visibility
+// public, private & external, internal
+//private -> internal (accessible to contracts that inherit from this contract.)
+//public -> external (can ONLY be called outside the contract.)
+// edit function definition below
+    function _createZombie(string memory _name, uint _dna) internal {
+        uint id = zombies.push(Zombie(_name, _dna)) - 1;
+        zombieToOwner[id] = msg.sender;
+        ownerZombieCount[msg.sender]++;
+        emit NewZombie(id, _name, _dna);
+    }
+
+//Chapter 10: Interacting with other contracts
+
