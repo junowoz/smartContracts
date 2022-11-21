@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity ^0.8.0;
-import "meucontrato.sol"; //Serve pra importar outros contratos
+//import ""; //Serve pra importar outros contratos
 
 /******************************************************************** */
 //Estrutura de um contrato
@@ -10,13 +10,13 @@ contract meuContrato {
 
 /******************************************************************** */
 //Variáveis
-contract meuContrato {
+contract meuContrato2 {
     uint minhaIdade;
     string nome;
     address carteiraOuContrato;
     bool estaAtivo;
 
-    byter32 data; //qualquer dado até 32 bytes, muito usado com gas
+    bytes32 data; //qualquer dado até 32 bytes, muito usado com gas
      
     //array vs lista
 }
