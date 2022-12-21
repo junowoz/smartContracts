@@ -1,6 +1,11 @@
+/// @title SOLIDITY FUNDAMENTALS
+/// @author @junowoz
+/// @notice pretty much all you need to know to catch up with solidity.
+
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity ^0.8.0; 
-//Import ""; //Serve pra importar outros contratos
+
+//import ""; //This way you import contracts
 
 contract MyContract {
     /**
@@ -77,10 +82,10 @@ contract MyContract {
     }
 
 ////////////////////////////////////////////
-/**
- * CONSTRUCTOR
- * Is runed once and only once: Its the same as a function but you can only call it ONCE.
- */
+    /**
+     * CONSTRUCTOR
+     * Is runed once and only once: Its the same as a function but you can only call it ONCE.
+     */
 
     constructor (string memory _name) {
         name = _name;
@@ -270,6 +275,8 @@ contract arrays {
     string [10] public array6; 
 }
 
+////////////////////////////////////////////
+
     //MANIPULATING ARRAYS
 contract manipulating {
 
@@ -338,6 +345,8 @@ contract structs {
         bool completed;
     }
 
+////////////////////////////////////////////
+
     //MANIPULATING STRUCTS
     //Array of books, using the type I created with the struct. Old way: uint[] public name;
     Book[] public books;
@@ -346,6 +355,7 @@ contract structs {
     function add(string memory _title, string memory _author) public {
     //  array.push(struct(value1, value2, value3));
         books.push(Book(_title, _author, false));
+    //with Book I create a new book
     }
 
     //Get the book from the array
@@ -354,13 +364,13 @@ contract structs {
     view 
     returns (string memory title, string memory author, bool completed) {
         Book storage book = books[_index];
-        return (book.title, book.author, book.completed);
+        return (book.title, book.author, book.completed); //Return the attributes 
     }
 
     //Mark the book completed
     function complete(uint _index) public {
-        Book storage book = books [_index];
-        book.completed = true;
+        Book storage book = books [_index]; //Read it from storage, refetch the book
+        book.completed = true; //Marked as completed assigning the value to true
     }
 
 }
@@ -368,50 +378,74 @@ contract structs {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * EVENTS
+ * Solidity lets you subscribe to events from an external consumer, to find out if anything inside
+ * a function has ben called.
+ * I can get a notification anytime my function is called, in real time, by subscribing to the event.
+ * I can Index up to 3 values, and set 17 of them.
  */
 
 contract events {
     string public message = 'Hello, World!';
 
+    //We create an event, and we pass arguments such as the user and the message
     event MessageUpdated (
-        address indexed _user,
+        address indexed _user, //Index let me filter to the specific variable
         string _message
     );
 
+    //Here I create the funcion 
     function updateMessage(string memory _message) public {
-        message = _message;
-        emit MessageUpdated(msg.sender, _message);
+        message = _message; //I pass the message to the variable I created before
+        emit MessageUpdated(msg.sender, _message); //And emit the event
     }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * ETHER
+ * An Ether is divisable by 18 decimal places.
+ * The small unit is WEI(18 zeros), and another value is GWEI (9 zeros. Used mostly for gas).
+ * 
+ * WEI   1000000000000000000
+ * GWEI  1000000000
+ * ETHER 1
  */
 
 contract Ether {
+    // 1 WEI is 1 WEI
     uint public value1 = 1 wei;
     uint public value2 = 1;
+
+    //1 GWEI is 1+9 zeros WEI
     uint public value3 = 1 gwei;
     uint public value4 = 1000000000;
-    uint public value5 = 1 ether;
-    uint public value6 = 1000000000000000000;
 
-    //
+    // 1 ETHER equals 1+18 zeros WEI
+    uint public value5 = 1 ether;
+    uint public value6 = 1000000000000000000; 
+
+////////////////////////////////////////////
+
+    //You can receive ether directly to a smart contract with the receive function + external + payable
     receive() external payable {}
 
-    //
+    //You can also use the fallback function if no receive function is implemented, and if msg.data is not implemented
     uint public count = 0;
     fallback() external payable {
         count ++;
     }
 
-    //
+////////////////////////////////////////////
+
+    //You can check the balance of any address inside a smart contract
     function checkBalance() public view returns (uint) {
         return address(this).balance;
     }
 
-    //
+    //You can send ether to a different address with call 
+    //Any function can receive ether as long as you use the payable modifier.
+    //You can access the value inside te function using msg.value
+    //Check the sender with msg.sender
     function transfer(address payable _to) public payable {
         msg.sender;
         (bool sent, ) = _to.call{value: msg.value} ('');
@@ -422,45 +456,59 @@ contract Ether {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * ERRORS
+ * requite - condition
+ * revert - prints something
+ * emit Log() - prints
  */
 
 contract errors {
     event Log(string message);
 
     function example1(uint _value) public {
+        //Require checks if something is true or false, and then does something.
+        //If its true, it continues to execute.
         require(_value > 10, 'Must be greater than 10');
-        emit Log('Success');
+        emit Log('Success'); //This prints a message
     }
 
     function example2(uint _value) public {
-        if (_value <= 10) {
-            revert ('Must be greater than 10');
-        }
-        emit Log ('Success');
+        if (_value <= 10) { //if this is true
+            revert ('Must be greater than 10'); //print this
+        } //if not
+        emit Log ('Success'); // print this
     }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * INHERITANCE
+ * Smart Contracts that inherit behaviour from other SCsm using the 'is' keyword
+ * Example:
+ * contract name is name2 {
+ * }
  */
 
+//Contract where we set some instructions
 contract Ownable {
     address owner;
 
+    //We set here that the onwser is the msg.sender
     constructor() {
         owner = msg.sender;
     }
 
+    //And we create a type called onlyOwner so we can use this in other contracts after
     modifier onlyOwner {
         require(msg.sender == owner, 'Caller must be owner');
         _;
     }
 }
 
+//This contract inherits from Ownable using the keyword 'is';
 contract MyyContract is Ownable {
     string public name = 'Example1';
 
+    //So here, we inherit the modifier called onlyOwner and also the constructor.
     function setName(string memory _name) public onlyOwner {
         name = _name;
     }
@@ -469,6 +517,7 @@ contract MyyContract is Ownable {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * CALLING OTHER CONTRACTS
+ * How to speak to other contracts within one contract?
  */
 
 contract SecretVault {
@@ -521,3 +570,8 @@ contract inter {
         IERC20(_tokenAddress).transferForm(msg.sender, address(this), _amount);
     }
 }
+
+
+/**
+ * 
+ */
