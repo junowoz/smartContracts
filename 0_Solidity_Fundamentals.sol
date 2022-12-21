@@ -520,33 +520,42 @@ contract MyyContract is Ownable {
  * How to speak to other contracts within one contract?
  */
 
+//We create a contract which stores a secret on chain
 contract SecretVault {
     string private secret;
 
+    //Storing the secret
     constructor(string memory _secret) {
         secret = _secret;
     }
 
+    //Here we set the secret
     function setSecret(string memory _secret) external {
         secret = _secret;
     }
 
+    //Here we get the secret
     function getSecret() external view returns (string memory) {
         return secret;
     }
 }
 
+//Now, in this contract, we'll interact with the first one:
 contract myContract {
+    //Inside the following constructor we take the address for the other contract and we save it here:
+    //The type is the name of the contract
     SecretVault public secretVault;
 
     constructor(SecretVault _secretVault) {
         secretVault = _secretVault;
     }
 
+    //Here we set the secret, by calling the other contract inside a variable . the name of the function
     function setSecret(string memory _secret) public {
         secretVault.setSecret(_secret);
     }
 
+    //To get the secret, is the same as above
     function getSecret() public view returns (string memory) {
         return secretVault.getSecret();
     }
@@ -554,8 +563,11 @@ contract myContract {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * INTERFACES 
+ * Common way to talk to smart contracts
  */
 
+//This is a common type of token on the blockchain. All we have to know is the specific functions we
+// want to call. In this case the transferForm with its values
 interface IERC20 {
    function transferForm(
         address _from, 
@@ -565,13 +577,24 @@ interface IERC20 {
         external returns (bool success); 
 }
 
-contract inter {
+contract interfacee {
     function deposit(address _tokenAddress, uint _amount) public {
         IERC20(_tokenAddress).transferForm(msg.sender, address(this), _amount);
+        //Here we set the function, and we call the IERC20 with the token address.
     }
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * 
+ * BUILDING...
+ * 
  */
+
+// ...
+
+
+// ...
+
+
+// ...
