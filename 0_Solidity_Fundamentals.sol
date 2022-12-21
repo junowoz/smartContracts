@@ -268,19 +268,27 @@ contract arrays {
     string [] public array4 = ['Hi', 'Hello', 'Hallo']; 
     string [] public array5; 
     string [10] public array6; 
+}
 
     //MANIPULATING ARRAYS
-    function manipulating(uint i, string memory data) public pure returns(uint value){
-        uint [] array;
+contract manipulating {
 
-        return(
-            array[i],       //Reading
-            array.lenght,   //Lenght
-            array.push(i),  //Add a value to the end
-            array.pop(),    //Delete the last value
-        delete array[i] //Delete an specific element at the index
-        );
+    uint [] public array;
+
+    function getAndLength(uint i) public view returns (uint){
+        return array[i];       //Reading
+        return array.length;   //Length
     }
+
+    function pushAndPop(uint i)  public {
+        return array.push(i);  //Add a value to the end
+        return array.pop();    //Delete the last value
+    }
+
+    function remove(uint index) public {
+        delete array[index]; //Delete an specific element at the index
+    }
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -301,42 +309,215 @@ contract map {
     mapping (address => bool) public hasVoted; //Mapping of hasVoted
 
     //Nested mappings
-    mapping (address => mapping (uint => bool)) public myMapping; //An address that corresponds to
+    mapping (address => mapping (uint => bool)) public theMapping; //An address that corresponds to
                                                                   // another mapping
 
+    //You can also manipulate mappings inside and outside a smart contract
+    mapping (uint => string) public myMapping;
+    function get(uint _id) public view returns (string memory){
+        return myMapping[_id]; //Read the value, by passing the key (_id)
+    }
+
+    function setAndDelete(uint _id, string memory _value) public {
+        myMapping[_id] = _value; //Setting the value by passing the key and passing a value
+        delete myMapping[_id]; //Deleting an item; Resets the value to the default value.
+
+    }
 } 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * STRUCTS
+ * Create your own types, and assing values to them.
  */
+
+contract structs {
+    struct Book { //Creating the struct
+        string title; //Assign values to the types
+        string author;
+        bool completed;
+    }
+
+    //MANIPULATING STRUCTS
+    //Array of books, using the type I created with the struct. Old way: uint[] public name;
+    Book[] public books;
+
+    //Pusshing to the array: adding a book
+    function add(string memory _title, string memory _author) public {
+    //  array.push(struct(value1, value2, value3));
+        books.push(Book(_title, _author, false));
+    }
+
+    //Get the book from the array
+    function get(uint _index) 
+    public 
+    view 
+    returns (string memory title, string memory author, bool completed) {
+        Book storage book = books[_index];
+        return (book.title, book.author, book.completed);
+    }
+
+    //Mark the book completed
+    function complete(uint _index) public {
+        Book storage book = books [_index];
+        book.completed = true;
+    }
+
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * EVENTS
  */
 
+contract events {
+    string public message = 'Hello, World!';
+
+    event MessageUpdated (
+        address indexed _user,
+        string _message
+    );
+
+    function updateMessage(string memory _message) public {
+        message = _message;
+        emit MessageUpdated(msg.sender, _message);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * ETHER
  */
+
+contract Ether {
+    uint public value1 = 1 wei;
+    uint public value2 = 1;
+    uint public value3 = 1 gwei;
+    uint public value4 = 1000000000;
+    uint public value5 = 1 ether;
+    uint public value6 = 1000000000000000000;
+
+    //
+    receive() external payable {}
+
+    //
+    uint public count = 0;
+    fallback() external payable {
+        count ++;
+    }
+
+    //
+    function checkBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+
+    //
+    function transfer(address payable _to) public payable {
+        msg.sender;
+        (bool sent, ) = _to.call{value: msg.value} ('');
+        require(sent, 'Failed!');
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * ERRORS
  */
 
+contract errors {
+    event Log(string message);
+
+    function example1(uint _value) public {
+        require(_value > 10, 'Must be greater than 10');
+        emit Log('Success');
+    }
+
+    function example2(uint _value) public {
+        if (_value <= 10) {
+            revert ('Must be greater than 10');
+        }
+        emit Log ('Success');
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * INHERITANCE
  */
+
+contract Ownable {
+    address owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner {
+        require(msg.sender == owner, 'Caller must be owner');
+        _;
+    }
+}
+
+contract MyyContract is Ownable {
+    string public name = 'Example1';
+
+    function setName(string memory _name) public onlyOwner {
+        name = _name;
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * CALLING OTHER CONTRACTS
  */
 
+contract SecretVault {
+    string private secret;
+
+    constructor(string memory _secret) {
+        secret = _secret;
+    }
+
+    function setSecret(string memory _secret) external {
+        secret = _secret;
+    }
+
+    function getSecret() external view returns (string memory) {
+        return secret;
+    }
+}
+
+contract myContract {
+    SecretVault public secretVault;
+
+    constructor(SecretVault _secretVault) {
+        secretVault = _secretVault;
+    }
+
+    function setSecret(string memory _secret) public {
+        secretVault.setSecret(_secret);
+    }
+
+    function getSecret() public view returns (string memory) {
+        return secretVault.getSecret();
+    }
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * INTERFACES 
  */
+
+interface IERC20 {
+   function transferForm(
+        address _from, 
+        address _to, 
+        uint256 _value
+    ) 
+        external returns (bool success); 
+}
+
+contract inter {
+    function deposit(address _tokenAddress, uint _amount) public {
+        IERC20(_tokenAddress).transferForm(msg.sender, address(this), _amount);
+    }
+}
